@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PortPulse Studio | All-in-One Network Scanner, Sniffer & Diagnostics Suite</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="logged-out">
+
+  <!-- ======================================================== -->
+  <!-- 7. SOFTWARE LOGIN & AUTHENTICATION SCREEN                -->
+  <!-- ======================================================== -->
+  <div class="login-screen-overlay" id="loginOverlay">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="login-icon-ring">
+          <i class="fa-solid fa-radar"></i>
+        </div>
+        <h2>PortPulse <span class="badge-pro">ULTIMATE</span></h2>
+        <p>All-in-One Network Scanner, Sniffer & Diagnostics Suite</p>
+      </div>
+
+      <form class="login-form" id="loginForm" onsubmit="return false;">
+        <div class="login-input-group">
+          <label><i class="fa-solid fa-user-shield"></i> Operator ID</label>
+          <input type="text" id="loginUsername" value="admin@portpulse.sec" placeholder="operator@domain.com" required>
+        </div>
+
+        <div class="login-input-group">
+          <label><i class="fa-solid fa-lock"></i> Passphrase / Secret Key</label>
+          <input type="password" id="loginPassword" value="portpulse2026" placeholder="Enter passphrase" required>
+        </div>
+
+        <div class="login-role-row">
+          <label><i class="fa-solid fa-id-badge"></i> Access Role:</label>
+          <select id="loginRoleSelect">
+            <option value="SecOps Administrator">SecOps Administrator (Full Control)</option>
+            <option value="Network Engineer">Network Engineer (Monitor & Diagnose)</option>
+            <option value="Security Auditor">Auditor / Read-Only (Reports Only)</option>
+          </select>
+        </div>
+
+        <div class="login-actions">
+          <button type="submit" class="btn btn-primary w-100" id="btnPerformLogin">
+            <i class="fa-solid fa-right-to-bracket"></i> Authenticate & Enter System
+          </button>
+        </div>
+
+        <div class="quick-demo-login">
+          <span>Quick Demo Access:</span>
+          <button type="button" class="btn btn-xs btn-outline" id="btnQuickDemoLogin">
+            <i class="fa-solid fa-bolt"></i> 1-Click Auto Login
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Top Navbar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-logo">
+          <i class="fa-solid fa-radar"></i>
+        </div>
+        <div class="brand-text">
+          <h1>PortPulse <span class="badge-pro">ULTIMATE</span></h1>
+          <p>Nmap + Wireshark + Diagnostics Made Human & Easy</p>
+        </div>
+      </div>
+
+      <!-- 9. QUICK SEARCH ON DASHBOARD ACROSS ALL SERVICES & MODULES (Ctrl+K) -->
+      <div class="nav-omnibar-wrapper">
+        <i class="fa-solid fa-magnifying-glass omnibar-icon"></i>
+        <input type="text" id="globalOmnibarSearch" placeholder="Quick Search all services, commands, devices... (Ctrl+K)" autocomplete="off">
+        <div class="omnibar-dropdown hidden" id="omnibarDropdown">
+          <div class="omnibar-results" id="omnibarResults"></div>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <!-- Sample Targets -->
+        <div class="sample-targets-dropdown">
+          <label><i class="fa-solid fa-bookmark"></i> Quick Targets:</label>
+          <select id="quickTargetSelect">
+            <option value="scanme.nmap.org" selected>Official Test Host (scanme.nmap.org)</option>
+            <option value="192.168.1.1">Home Wi-Fi Router (192.168.1.1)</option>
+            <option value="192.168.1.50">Local Web Server (192.168.1.50)</option>
+            <option value="127.0.0.1">This Computer (127.0.0.1)</option>
+          </select>
+        </div>
+
+        <!-- Light / Dark Mode Toggle Switch -->
+        <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Light / Dark Mode">
+          <i class="fa-solid fa-moon icon-moon"></i>
+          <i class="fa-solid fa-sun icon-sun"></i>
+          <span id="themeToggleText">Dark</span>
+        </button>
+
+        <!-- 5. Export Audit Report (JSON, PDF, TXT) -->
+        <button class="btn btn-outline" id="btnExportReport" title="Export scan summary in 3 formats (PDF, JSON, TXT)">
+          <i class="fa-solid fa-file-arrow-down"></i> Reports (3 Formats)
+        </button>
+
+        <!-- User Profile Badge & Logout -->
+        <div class="user-profile-badge" id="userProfileBadge" title="Current Operator">
+          <div class="user-avatar"><i class="fa-solid fa-user-astronaut"></i></div>
+          <div class="user-info">
+            <span class="user-name" id="navUserName">Admin SecOps</span>
+            <span class="user-role" id="navUserRole">Administrator</span>
+          </div>
+          <button class="btn-logout" id="btnLogout" title="Logout of System"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Clean Tab Navigation (Simple & Intuitive) -->
+    <nav class="main-tabs-bar">
+      <div class="tabs-container">
+        <button class="tab-btn active" data-tab="tab-nmap">
+          <i class="fa-solid fa-crosshairs"></i> Port & Vuln Scanner <span class="tab-badge">Nmap</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-wireshark">
+          <i class="fa-solid fa-wave-square"></i> Live Packet Sniffer <span class="tab-badge badge-blue">Wireshark</span>
+        </button>
+        <!-- 4. NETWORK TOPOLOGY DESIGN IN SOFTWARE -->
+        <button class="tab-btn" data-tab="tab-topology">
+          <i class="fa-solid fa-circle-nodes"></i> Network Topology Radar <span class="tab-badge badge-purple">Visual</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-traceroute">
+          <i class="fa-solid fa-route"></i> Visual Traceroute & Health <span class="tab-badge badge-cyan">Health</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-devices">
+          <i class="fa-solid fa-wifi"></i> Who's On My Wi-Fi? <span class="tab-badge badge-emerald">LAN</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-ai">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> AI Network Doctor <span class="tab-badge badge-amber">Smart</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- WIRESHARK-STYLE DESKTOP MENU BAR WITH INTERACTIVE DROPDOWNS -->
+  <!-- ======================================================== -->
+  <div class="ws-menubar-container">
+    <div class="ws-menubar">
+      <!-- File Menu -->
+      <div class="ws-menu-item" data-menu="file">
+        <span class="ws-menu-trigger">File</span>
+        <div class="ws-dropdown-menu">
+          <button class="ws-menu-btn" id="wsMenuFileOpen"><i class="fa-solid fa-folder-open"></i> <span>Open PCAP Capture...</span> <kbd>Ctrl+O</kbd></button>
+          <button class="ws-menu-btn" id="wsMenuFileSave"><i class="fa-solid fa-floppy-disk"></i> <span>Save / Export PCAP...</span> <kbd>Ctrl+S</kbd></button>
+          <button class="ws-menu-btn" id="wsMenuFileExportReport"><i class="fa-solid fa-file-shield"></i> <span>Export Audit Reports (PDF/TXT/JSON)...</span> <kbd>Ctrl+E</kbd></button>
+          <button class="ws-menu-btn" id="wsMenuFilePrint"><i class="fa-solid fa-print"></i> <span>Print Packet Stream...</span> <kbd>Ctrl+P</kbd></button>
+          <div class="ws-menu-divider"></div>
+          <button class="ws-menu-btn" id="wsMenuFileClear"><i class="fa-solid fa-trash-can"></i> <span>Clear Capture Buffer</span></button>
+          <button class="ws-menu-btn text-danger" id="wsMenuFileExit"><i class="fa-solid fa-right-from-bracket"></i> <span>Logout / Exit</span></button>
+        </div>
+      </div>
+
+      <!-- Edit Menu -->
+      <div class="ws-menu-item" data-menu="edit">
+        <span class="ws-menu-trigger">Edit</span>
+        <div class="ws-dropdown-menu">
+          <button class="ws-menu-btn" id="wsMenuEditFind"><i class="fa-solid fa-magnifying-glass"></i> <span>Find / Filter Packet...</span> <kbd>Ctrl+F</kbd></button>
+          <button class="ws-menu-btn" id="wsMenuEditCopyCmd"><i class="fa-solid fa-copy"></i> <span>Copy Active Nmap Command</span></button>
+          <button class="ws-menu-btn" id="wsMenuEditClearFilter"><i class="fa-solid fa-filter-circle-xmark"></i> <span>Clear Display Filter</span></button>
+          <div class="ws-menu-divider"></div>
+          <button class="ws-menu-btn" id="wsMenuEditResetAll"><i class="fa-solid fa-rotate-left"></i> <span>Reset Default Preferences</span></button>
+        </div>
+      </div>
+
+      <!-- View Menu -->
+      <div class="ws-menu-item" data-menu="view">
+        <span class="ws-menu-trigger">View</span>
+        <div class="ws-dropdown-menu">
+          <button class="ws-menu-btn" id="wsMenuViewColorize"><i class="fa-solid fa-palette"></i> <span>Colorize Protocol Stream</span> <span class="badge-tag">ON</span></button>
+          <button class="ws-menu-btn" id="wsMenuViewParticles"><i class="fa-solid fa-atom"></i> <span>Toggle Radar Particles</span></button>
+          <button class="ws-menu-btn" id="wsMenuViewTheme"><i class="fa-solid fa-circle-half-stroke"></i> <span>Toggle Dark / Light Theme</span></button>
+          <div class="ws-menu-divider"></div>
+          <button class="ws-menu-btn" id="wsMenuViewZoomIn"><i class="fa-solid fa-magnifying-glass-plus"></i> <span>Zoom In Font</span></button>
+          <button class="ws-menu-btn" id="wsMenuViewZoomOut"><i class="fa-solid fa-magnifying-glass-minus"></i> <span>Zoom Out Font</span></button>
+        </div>
+      </div>
+
+      <!-- Capture Menu -->
+      <div class="ws-menu-item" data-menu="capture">
+        <span class="ws-menu-trigger">Capture</span>
+        <div class="ws-dropdown-menu">
+          <button class="ws-menu-btn" id="wsMenuCapStart"><i class="fa-solid fa-play text-emerald"></i> <span>Start Live Capture</span> <kbd>Ctrl+E</kbd></button>
+          <button class="ws-menu-btn" id="wsMenuCapStop"><i class="fa-solid fa-pause text-amber"></i> <span>Pause / Stop Capture</span></button>
+          <button class="ws-menu-btn" id="wsMenuCapRestart"><i class="fa-solid fa-arrows-rotate text-cyan"></i> <span>Restart Fresh Capture</span></button>
+          <div class="ws-menu-divider"></div>
+          <button class="ws-menu-btn" id="wsMenuCapInterfaces"><i class="fa-solid fa-network-wired"></i> <span>Network Interfaces List...</span></button>
+          <button class="ws-menu-btn" id="wsMenuCapSimLeak"><i class="fa-solid fa-triangle-exclamation text-crimson"></i> <span>Simulate Password Leak Packet</span></button>
+        </div>
+      </div>
+
+      <!-- Analyze Menu -->
+      <div class="ws-menu-item" data-menu="analyze">
+        <span class="ws-menu-trigger">Analyze</span>
+        <div class="ws-dropdown-menu">
+          <button class="ws-menu-btn" id="wsMenuAnalyzeFollow"><i class="fa-solid fa-comments text-cyan"></i> <span>Follow TCP Stream (Dialogue)...</span></button>
+          <button class="ws-menu-btn" id="wsMenuAnalyzeVuln"><i class="fa-solid fa-shield-virus text-amber"></i> <span>Nmap Vulnerability Engine</span></button>
+          <button class="ws-menu-btn" id="wsMenuAnalyzeDecode"><i class="fa-solid fa-binary"></i> <span>Decode Hex & TLS Payload</span></button>
+          <div class="ws-menu-divider"></div>
+          <button class="ws-menu-btn" id="wsMenuAnalyzeHealth"><i class="fa-solid fa-heart-pulse text-emerald"></i> <span>Security Posture Health Index</span></button>
+        </div>
+      </div>
+
+      <!-- Statistics Menu -->
+      <div class="ws-menu-item" data-menu="statistics">
+        <span class="ws-menu-trigger">Statistics</span>
+        <div class="ws-dropdown-menu">
+          <button class="ws-menu-btn" id="wsMenuStatsHierarchy"><i class="fa-solid fa-sitemap text-purple"></i> <span>Protocol Hierarchy Breakdown...</span></button>
+          <button class="ws-menu-btn" id="wsMenuStatsIo"><i class="fa-solid fa-chart-area text-cyan"></i> <span>Traffic I/O Rate & Jitter Graph</span></button>
+          <button class="ws-menu-btn" id="wsMenuStatsDns"><i class="fa-solid fa-bolt text-amber"></i> <span>DNS Resolver Speed Race</span></button>
+          <button class="ws-menu-btn" id="wsMenuStatsEndpoints"><i class="fa-solid fa-server text-blue"></i> <span>Subnet Endpoints & LAN Devices</span></button>
+        </div>
+      </div>
+
+      <!-- Tools Menu -->
+      <div class="ws-menu-item" data-menu="tools">
+        <span class="ws-menu-trigger">Tools</span>
+        <div class="ws-dropdown-menu">
+          <button class="ws-menu-btn" id="wsMenuToolsPing"><i class="fa-solid fa-satellite-dish text-emerald"></i> <span>Continuous ICMP Ping & Sweep...</span></button>
+          <button class="ws-menu-btn" id="wsMenuToolsForge"><i class="fa-solid fa-wand-magic-sparkles text-cyan"></i> <span>Raw Packet Crafter ("Packet Forge")...</span></button>
+          <button class="ws-menu-btn" id="wsMenuToolsWhois"><i class="fa-solid fa-earth-americas text-purple"></i> <span>WHOIS & IP Threat Intelligence...</span></button>
+          <button class="ws-menu-btn" id="wsMenuToolsNmapCli"><i class="fa-solid fa-terminal text-blue"></i> <span>Manual Nmap CLI Terminal Box</span></button>
+          <div class="ws-menu-divider"></div>
+          <button class="ws-menu-btn" id="wsMenuToolsTrace"><i class="fa-solid fa-route text-amber"></i> <span>Visual Traceroute Hop Map</span></button>
+        </div>
+      </div>
+
+      <!-- Help Menu -->
+      <div class="ws-menu-item" data-menu="help">
+        <span class="ws-menu-trigger">Help</span>
+        <div class="ws-dropdown-menu">
+          <button class="ws-menu-btn" id="wsMenuHelpShortcuts"><i class="fa-solid fa-keyboard"></i> <span>Keyboard Shortcuts Reference</span> <kbd>Ctrl+K</kbd></button>
+          <button class="ws-menu-btn" id="wsMenuHelpAiDoc"><i class="fa-solid fa-robot text-amber"></i> <span>Ask AI Doctor Troubleshooter</span></button>
+          <div class="ws-menu-divider"></div>
+          <button class="ws-menu-btn" id="wsMenuHelpAbout"><i class="fa-solid fa-circle-info text-cyan"></i> <span>About PortPulse Studio v2.4</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Action Ribbon Toolbar (Wireshark-Style Icons) -->
+    <div class="ws-ribbon-toolbar">
+      <div class="ws-ribbon-group">
+        <button class="ws-ribbon-btn btn-fin" id="ribbonStartCapture" title="Start Live Capture (Wireshark Fin)">
+          <i class="fa-solid fa-water"></i>
+        </button>
+        <button class="ws-ribbon-btn btn-stop" id="ribbonStopCapture" title="Stop / Pause Capture">
+          <i class="fa-solid fa-stop"></i>
+        </button>
+        <button class="ws-ribbon-btn btn-restart" id="ribbonRestartCapture" title="Restart Capture Fresh">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+        <button class="ws-ribbon-btn" id="ribbonInterfaces" title="Capture Options & Interfaces">
+          <i class="fa-solid fa-sliders"></i>
+        </button>
+      </div>
+
+      <div class="ws-ribbon-separator"></div>
+
+      <div class="ws-ribbon-group">
+        <button class="ws-ribbon-btn" id="ribbonSavePcap" title="Save Capture As PCAP / JSON">
+          <i class="fa-solid fa-floppy-disk"></i>
+        </button>
+        <button class="ws-ribbon-btn" id="ribbonFindPacket" title="Find / Filter Packets">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <button class="ws-ribbon-btn" id="ribbonFollowStream" title="Follow TCP Stream">
+          <i class="fa-solid fa-comments text-cyan"></i>
+        </button>
+      </div>
+
+      <div class="ws-ribbon-separator"></div>
+
+      <div class="ws-ribbon-group">
+        <button class="ws-ribbon-btn" id="ribbonPingTool" title="Launch Continuous Ping & Subnet Sweep">
+          <i class="fa-solid fa-satellite-dish text-emerald"></i>
+        </button>
+        <button class="ws-ribbon-btn" id="ribbonStatsHierarchy" title="Protocol Hierarchy Breakdown">
+          <i class="fa-solid fa-sitemap text-purple"></i>
+        </button>
+        <button class="ws-ribbon-btn" id="ribbonPacketForge" title="Raw Packet Crafter ('Packet Forge')">
+          <i class="fa-solid fa-shield-halved text-cyan"></i>
+        </button>
+        <button class="ws-ribbon-btn" id="ribbonWhois" title="WHOIS & IP Threat Radar">
+          <i class="fa-solid fa-earth-americas text-amber"></i>
+        </button>
+      </div>
+
+      <div class="ws-ribbon-spacer"></div>
+
+      <!-- Quick Active Interface Pill -->
+      <div class="ws-active-interface-badge" id="wsActiveInterfaceBadge" title="Click to view all network interfaces">
+        <span class="active-dot"></span>
+        <i class="fa-solid fa-wifi"></i>
+        <span id="wsCurrentInterfaceName">Wi-Fi (192.168.1.105)</span>
+        <i class="fa-solid fa-chevron-down text-muted" style="font-size:10px;"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Shell -->
+  <main class="main-wrapper">
+    
+    <!-- ======================================================== -->
+    <!-- MODULE 1: NMAP PORT & VULNERABILITY SCANNER              -->
+    <!-- ======================================================== -->
+    <section class="tab-module active" id="tab-nmap">
+      <!-- Hero Target Scanner Bar -->
+      <div class="scanner-hero-card">
+        <div class="target-input-row">
+          <div class="input-field-group">
+            <i class="fa-solid fa-crosshairs input-icon"></i>
+            <input type="text" id="targetHostInput" placeholder="Enter IP address, domain or subnet (e.g. scanme.nmap.org or 192.168.1.1)..." value="scanme.nmap.org" autocomplete="off">
+            <button class="clear-input-btn" id="btnClearTarget" title="Clear"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+
+          <button class="btn btn-scan" id="btnStartScan">
+            <i class="fa-solid fa-bolt"></i> <span id="scanBtnText">Start Smart Scan</span>
+          </button>
+        </div>
+
+        <!-- 1-Click Scan Profiles (Beginner Friendly) -->
+        <div class="scan-profiles-bar">
+          <span class="profiles-label"><i class="fa-solid fa-sliders"></i> Scan Profiles:</span>
+          <div class="profiles-pills" id="profilesContainer">
+            <button class="profile-pill active" data-profile="quick" title="Fast ping & top 20 most common ports">
+              <i class="fa-solid fa-bolt-lightning"></i> Quick Scan (2s)
+            </button>
+            <button class="profile-pill" data-profile="web" title="Audit HTTP, HTTPS, SSL cert & web ports">
+              <i class="fa-solid fa-globe"></i> Web & SSL Audit
+            </button>
+            <button class="profile-pill" data-profile="vuln" title="Search for known vulnerabilities and weak configurations">
+              <i class="fa-solid fa-shield-virus"></i> Vulnerability Check
+            </button>
+            <button class="profile-pill" data-profile="full" title="Deep OS fingerprinting, hardware vendor and all top 1000 ports">
+              <i class="fa-solid fa-microchip"></i> Full OS & Hardware
+            </button>
+          </div>
+        </div>
+
+        <!-- Real Nmap Terminal Command Preview (Educational) -->
+        <div class="nmap-cmd-bar">
+          <div class="nmap-cmd-label">
+            <i class="fa-solid fa-terminal"></i> Equivalent Nmap CLI Command:
+          </div>
+          <div class="nmap-cmd-code">
+            <code id="nmapCmdDisplay">nmap -F -T4 scanme.nmap.org</code>
+            <button class="btn-copy-cmd" id="btnCopyCmd" title="Copy CLI Command">
+              <i class="fa-solid fa-copy"></i> Copy
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- 2. MANUAL COMMAND BOX & CLI TERMINAL (NETWORK SCANNING)  -->
+      <!-- ======================================================== -->
+      <div class="panel-card manual-cmd-card mt-3">
+        <div class="panel-header">
+          <div class="header-left">
+            <h2><i class="fa-solid fa-terminal text-cyan"></i> Manual Command Scanner & CLI Terminal Box</h2>
+            <span class="panel-hint">Customize command flags, port ranges, and execute manual Nmap commands in real-time CLI</span>
+          </div>
+          <span class="tab-badge badge-blue">Nmap CLI v7.94</span>
+        </div>
+
+        <div class="manual-cmd-grid">
+          <!-- Command Formulation Form -->
+          <div class="manual-cmd-form">
+            <div class="form-row-group">
+              <div class="form-col">
+                <label><i class="fa-solid fa-crosshairs"></i> Target Host or Subnet:</label>
+                <input type="text" id="manualTargetInput" value="scanme.nmap.org" placeholder="e.g. 192.168.1.1 or scanme.nmap.org">
+              </div>
+              <div class="form-col">
+                <label><i class="fa-solid fa-door-open"></i> Port Range:</label>
+                <input type="text" id="manualPortRangeInput" value="21-443" placeholder="e.g. 80,443 or 1-1000 or -p-">
+              </div>
+            </div>
+
+            <div class="form-flags-group">
+              <label><i class="fa-solid fa-sliders"></i> Quick Flag Shortcuts (Click to Toggle):</label>
+              <div class="cmd-flags-pills" id="cmdFlagsPills">
+                <button type="button" class="cmd-flag-pill active" data-flag="-sV">-sV (Service Version)</button>
+                <button type="button" class="cmd-flag-pill active" data-flag="-sS">-sS (TCP SYN Stealth)</button>
+                <button type="button" class="cmd-flag-pill" data-flag="-O">-O (OS Fingerprint)</button>
+                <button type="button" class="cmd-flag-pill" data-flag="-T4">-T4 (Aggressive Timing)</button>
+                <button type="button" class="cmd-flag-pill" data-flag="--script vuln">--script vuln</button>
+                <button type="button" class="cmd-flag-pill" data-flag="-Pn">-Pn (No Ping)</button>
+              </div>
+            </div>
+
+            <div class="form-presets-group">
+              <label><i class="fa-solid fa-bolt"></i> Common Scan Presets (1-Click Load):</label>
+              <div class="cmd-presets-row">
+                <button type="button" class="btn btn-xs btn-outline btn-cmd-preset" data-preset="quick"><i class="fa-solid fa-bolt"></i> Quick (-F)</button>
+                <button type="button" class="btn btn-xs btn-outline btn-cmd-preset" data-preset="intense"><i class="fa-solid fa-fire"></i> Intense (-A)</button>
+                <button type="button" class="btn btn-xs btn-outline btn-cmd-preset" data-preset="vuln"><i class="fa-solid fa-shield-virus"></i> Vuln Check</button>
+                <button type="button" class="btn btn-xs btn-outline btn-cmd-preset" data-preset="ping"><i class="fa-solid fa-satellite-dish"></i> Ping Sweep</button>
+              </div>
+            </div>
+
+            <div class="manual-cli-box-entry">
+              <label><i class="fa-solid fa-terminal"></i> Full Generated Command Line (Editable):</label>
+              <div class="manual-cli-input-wrapper">
+                <span class="cli-prompt">$</span>
+                <input type="text" id="manualFullCmdInput" value="nmap -sS -sV -T4 -p 21-443 scanme.nmap.org">
+              </div>
+            </div>
+
+            <div class="manual-cmd-actions">
+              <button class="btn btn-primary" id="btnExecuteManualCmd"><i class="fa-solid fa-play"></i> Execute Manual Command</button>
+              <button class="btn btn-outline" id="btnResetManualCmd"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+            </div>
+          </div>
+
+          <!-- Live Terminal Output Screen -->
+          <div class="manual-terminal-screen">
+            <div class="terminal-screen-header">
+              <span><i class="fa-solid fa-laptop-code"></i> Live Terminal Output</span>
+              <button class="btn btn-xs btn-ghost" id="btnClearTerminal"><i class="fa-solid fa-eraser"></i> Clear</button>
+            </div>
+            <div class="manual-terminal-output" id="manualTerminalOutput">
+              <div class="term-line"><span class="term-cyan">portpulse@secops:~$</span> nmap --version</div>
+              <div class="term-line term-muted">Nmap version 7.94 ( https://nmap.org )</div>
+              <div class="term-line term-muted">Platform: x86_64-pc-windows-msvc | Libpcap 1.10.4</div>
+              <div class="term-line term-green">Ready. Configure flags on left or click 'Execute Manual Command'.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scan Progress Bar -->
+      <div class="scan-progress-container hidden" id="scanProgressContainer">
+        <div class="progress-meta">
+          <span class="progress-status" id="scanStatusText"><i class="fa-solid fa-spinner fa-spin"></i> Probing host and scanning ports...</span>
+          <span class="progress-percent" id="scanPercentText">45%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="scanProgressBar"></div>
+        </div>
+      </div>
+
+      <!-- Results Dashboard -->
+      <div class="results-dashboard" id="resultsDashboard">
+        <!-- Scan Error Diagnostic Banner (Shown on real failure) -->
+        <div id="scanErrorBanner" class="alert-banner alert-danger hidden" style="margin-bottom: 16px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: var(--radius-sm); padding: 14px 18px; color: #fca5a5;">
+          <div style="display:flex; align-items:flex-start; gap:12px;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size:20px; color:#ef4444; margin-top:2px;"></i>
+            <div>
+              <strong id="scanErrorTitle" style="display:block; font-size:14px; color:#fff; font-weight:700;">Scan Failed</strong>
+              <p id="scanErrorDetails" style="font-size:12.5px; margin:4px 0 0; color:#cbd5e1;"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Overview Metrics Grid -->
+        <div class="overview-grid">
+          <div class="metric-card">
+            <div class="card-icon blue"><i class="fa-solid fa-server"></i></div>
+            <div class="card-body">
+              <span class="card-label">Target Host Status</span>
+              <h3 class="host-name" id="resHostName">scanme.nmap.org</h3>
+              <div class="host-tags">
+                <span class="badge badge-success" id="resHostState"><i class="fa-solid fa-circle-check"></i> Host is UP</span>
+                <span class="badge badge-muted" id="resLatency">14 ms latency</span>
+                <span class="badge badge-blue" id="resReverseDns" title="Reverse DNS"><i class="fa-solid fa-arrow-rotate-left"></i> rDNS: scanme.nmap.org</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="card-icon purple"><i class="fa-solid fa-laptop-code"></i></div>
+            <div class="card-body">
+              <span class="card-label">Operating System & Device</span>
+              <h3 id="resOs">Linux (Ubuntu / Debian Kernel 5.x)</h3>
+              <span class="card-subtext" id="resMac">MAC Vendor: Realtek Semiconductor (eth0)</span>
+              <span class="card-subtext text-cyan" id="resOsCpe" style="display:block; margin-top:2px;">CPE: cpe:/o:linux:kernel:5.x (96% guess)</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="card-icon amber"><i class="fa-solid fa-door-open"></i></div>
+            <div class="card-body">
+              <span class="card-label">Port Discovery</span>
+              <div class="ports-summary-row">
+                <div class="port-stat-item">
+                  <strong class="text-open" id="countOpenPorts">4</strong>
+                  <span>Open</span>
+                </div>
+                <div class="port-stat-item">
+                  <strong class="text-filtered" id="countFilteredPorts">2</strong>
+                  <span>Filtered</span>
+                </div>
+                <div class="port-stat-item">
+                  <strong class="text-closed" id="countClosedPorts">14</strong>
+                  <span>Closed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="metric-card health-score-card">
+            <div class="card-icon emerald" id="healthIcon"><i class="fa-solid fa-shield-heart"></i></div>
+            <div class="card-body">
+              <span class="card-label">Security Posture Score</span>
+              <div class="score-display">
+                <span class="score-num" id="resScore">88</span>
+                <span class="score-total">/100</span>
+                <span class="score-grade good" id="resScoreGrade">Good</span>
+              </div>
+              <span class="card-subtext" id="resScoreAdvice">Minor exposures. No critical CVEs found.</span>
+              <div class="vuln-severity-pill" id="resVulnWrap">
+                <span>Vulnerability Rating:</span>
+                <span class="vuln-badge vuln-badge-none" id="resVulnBadge">None / Low</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Split Layout: Visual Port Matrix + Discovered Services -->
+        <div class="content-split-layout">
+          <div class="panel-card visual-port-matrix-panel">
+            <div class="panel-header">
+              <div class="header-left">
+                <h2><i class="fa-solid fa-border-all"></i> Interactive Port Grid</h2>
+                <span class="panel-hint">Click any port box to learn what it does and if it's safe!</span>
+              </div>
+              <div class="legend-pills">
+                <span class="legend-pill open"><span class="dot"></span> Open</span>
+                <span class="legend-pill filtered"><span class="dot"></span> Filtered (Firewall)</span>
+                <span class="legend-pill closed"><span class="dot"></span> Closed</span>
+              </div>
+            </div>
+            <div class="port-matrix-grid" id="portMatrixGrid"></div>
+          </div>
+
+          <div class="panel-card services-list-panel">
+            <div class="panel-header">
+              <div class="header-left">
+                <h2><i class="fa-solid fa-list-check"></i> Discovered Services & Risks</h2>
+                <span class="panel-hint">Detected running software versions & security guidance</span>
+              </div>
+              <div class="filter-service-group">
+                <button class="btn btn-xs btn-outline active" data-filter="all">All Services</button>
+                <button class="btn btn-xs btn-outline" data-filter="open">Open Only</button>
+                <button class="btn btn-xs btn-outline" data-filter="risk">At Risk</button>
+              </div>
+            </div>
+            <div class="services-items-container" id="servicesList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- MODULE 2: WIRESHARK-LIKE LIVE PACKET SNIFFER (SIMPLIFIED)-->
+    <!-- ======================================================== -->
+    <section class="tab-module" id="tab-wireshark">
+      <div class="section-top-bar">
+        <div>
+          <h2><i class="fa-solid fa-wave-square text-cyan"></i> Live Packet Sniffer & Stream Inspector</h2>
+          <p class="section-subtext">Wireshark made simple: Live packet stream, color-coded protocol flows, cleartext credential detection, and plain-English packet decoder.</p>
+        </div>
+        <div class="sniffer-controls">
+          <button class="btn btn-primary" id="btnToggleSniffer">
+            <i class="fa-solid fa-pause"></i> <span id="snifferToggleText">Pause Capture</span>
+          </button>
+          <button class="btn btn-outline" id="btnClearSniffer">
+            <i class="fa-solid fa-trash-can"></i> Clear
+          </button>
+          <button class="btn btn-outline-danger" id="btnInjectThreatPacket" title="Simulate an unencrypted password leak packet">
+            <i class="fa-solid fa-triangle-exclamation"></i> Simulate Password Leak
+          </button>
+        </div>
+      <!-- WIRESHARK INTERFACE SELECTION CARD (SCREENSHOT REPLICA) -->
+      <div class="panel-card ws-interfaces-card mb-3" id="wsInterfacesCard">
+        <div class="ws-capture-header">
+          <div class="ws-capture-title">
+            <span class="ws-welcome-pill"><i class="fa-solid fa-water"></i> Welcome to Wireshark Engine</span>
+            <h3>Capture Traffic from Interface</h3>
+          </div>
+          <div class="ws-capture-actions" style="display: flex; gap: 8px;">
+            <button class="btn btn-xs btn-outline" id="btnRefreshInterfaces" title="Detect & refresh available network adapters">
+              <i class="fa-solid fa-rotate"></i> Refresh Adapters
+            </button>
+            <button class="btn btn-xs btn-outline" id="btnToggleInterfacesView">
+              <i class="fa-solid fa-chevron-up" id="iconToggleInterfaces"></i> <span id="lblToggleInterfaces">Hide Interfaces</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="ws-capture-filter-line" id="wsCaptureFilterLine">
+          <span class="filter-label">...using this filter:</span>
+          <div class="capture-filter-input-wrapper">
+            <i class="fa-solid fa-bookmark filter-bookmark-icon text-emerald"></i>
+            <input type="text" id="wsCaptureFilterInput" placeholder="Enter a capture filter ... (e.g. host 192.168.1.1 or tcp port 80)">
+          </div>
+          <select id="wsInterfaceFilterType" class="ws-select-small">
+            <option value="all">All interfaces shown</option>
+            <option value="active">Active interfaces only</option>
+            <option value="wireless">Wireless (Wi-Fi) only</option>
+          </select>
+        </div>
+
+        <!-- Live Packet Capture Target & Smart Limit Controls Bar -->
+        <div class="ws-capture-config-bar" id="wsCaptureConfigBar">
+          <div class="config-item">
+            <label class="filter-label"><i class="fa-solid fa-network-wired text-cyan"></i> Adapter:</label>
+            <select id="wsInterfaceSelect" class="ws-select-small">
+              <option value="Wi-Fi">Wi-Fi (Default)</option>
+            </select>
+          </div>
+
+          <div class="config-item">
+            <label class="filter-label"><i class="fa-solid fa-crosshairs text-cyan"></i> Target IP:</label>
+            <select id="captureTargetIpSelect" class="ws-select-small">
+              <option value="all">All Network Traffic (0.0.0.0/0)</option>
+              <option value="192.168.1.1">Gateway Router (192.168.1.1)</option>
+              <option value="192.168.1.105">Workstation (192.168.1.105)</option>
+              <option value="192.168.1.50">Web/DB Server (192.168.1.50)</option>
+              <option value="45.33.32.156">Test Target (scanme.nmap.org)</option>
+              <option value="custom">Custom IP...</option>
+            </select>
+            <input type="text" id="captureCustomIpInput" class="ws-input-inline hidden" placeholder="e.g. 8.8.8.8">
+          </div>
+
+          <div class="config-item">
+            <label class="filter-label"><i class="fa-solid fa-gauge-high text-emerald"></i> Limit Mode:</label>
+            <select id="captureLimitModeSelect" class="ws-select-small">
+              <option value="10000">Safe Mode (10,000 pkts)</option>
+              <option value="50000" selected>Normal Mode (50,000 pkts)</option>
+              <option value="100000">Deep Capture (100,000 pkts)</option>
+              <option value="custom">Custom Mode...</option>
+            </select>
+            <input type="number" id="captureCustomLimitInput" class="ws-input-inline hidden" placeholder="Custom limit" min="100" max="1000000">
+          </div>
+
+          <div class="config-item config-status">
+            <span class="filter-label">Status:</span>
+            <span id="captureStatusBadge" class="badge badge-success"><i class="fa-solid fa-circle-play"></i> CAPTURING</span>
+          </div>
+
+          <div class="config-actions">
+            <button class="btn btn-xs btn-outline-danger" id="btnOpenBlockedModal" title="View blocked & quarantined packets">
+              <i class="fa-solid fa-shield-virus"></i> Blocked Log (<span id="blockedLogCount">0</span>)
+            </button>
+            <button class="btn btn-xs btn-outline-warning" id="btnSimulateSpike" title="Simulate a sudden traffic burst for testing Smart Packet Guard">
+              <i class="fa-solid fa-bolt"></i> Test Spike
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Capture Progress & Protocol Dashboard -->
+        <div class="ws-capture-dashboard-strip" id="wsCaptureDashboardStrip">
+          <div class="cap-progress-meta">
+            <div class="cap-progress-text">
+              <i class="fa-solid fa-network-wired text-cyan"></i> 
+              <span>Packets Captured: <strong id="capLiveCount">0</strong> / <strong id="capMaxCount">50,000</strong> — Progress: <strong id="capProgressPct">0%</strong></span>
+            </div>
+            <div class="cap-target-indicator">
+              <span>Target: <strong id="dispTargetIp" class="text-cyan">All Network Traffic</strong></span>
+            </div>
+          </div>
+          <div class="progress-track cap-progress-track">
+            <div class="progress-fill" id="capProgressBar" style="width: 0%;"></div>
+          </div>
+          <div class="cap-metrics-row">
+            <div class="cap-metric-pill"><i class="fa-solid fa-gauge-simple text-cyan"></i> Rate: <strong id="capPpsRate">0</strong> pkt/s</div>
+            <div class="cap-metric-pill"><i class="fa-solid fa-circle-nodes text-cyan"></i> TCP: <strong id="capCountTcp">0</strong></div>
+            <div class="cap-metric-pill"><i class="fa-solid fa-bolt text-blue"></i> UDP: <strong id="capCountUdp">0</strong></div>
+            <div class="cap-metric-pill"><i class="fa-solid fa-satellite-dish text-amber"></i> ICMP: <strong id="capCountIcmp">0</strong></div>
+            <div class="cap-metric-pill"><i class="fa-solid fa-cubes text-purple"></i> Other: <strong id="capCountOther">0</strong></div>
+            <div class="cap-metric-pill" id="spikeStatusPill"><i class="fa-solid fa-shield-halved text-emerald"></i> Guard: <strong id="spikeStatusText" class="text-emerald">Baseline Normal</strong></div>
+          </div>
+        </div>
+
+        <!-- Smart Packet Guard Alert Banner (Hidden by default) -->
+        <div class="spike-alert-banner hidden" id="spikeAlertBanner">
+          <div class="spike-alert-content">
+            <div class="spike-alert-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div>
+              <h4 class="text-amber">⚠️ TRAFFIC SPIKE DETECTED</h4>
+              <p id="spikeDetails">Current Rate: <strong>3,420 pkt/s</strong> | Recent Baseline: <strong>210 pkt/s</strong> — Abnormal traffic surge detected!</p>
+            </div>
+          </div>
+          <div class="spike-alert-actions">
+            <button class="btn btn-xs btn-secondary" id="btnPauseOnSpike"><i class="fa-solid fa-pause"></i> Pause Capture</button>
+            <button class="btn btn-xs btn-primary" id="btnContinueOnSpike"><i class="fa-solid fa-play"></i> Continue Capture</button>
+          </div>
+        </div>
+
+        <!-- Capture Limit Reached Banner (Hidden by default) -->
+        <div class="limit-reached-banner hidden" id="limitReachedBanner">
+          <div class="limit-reached-content">
+            <div class="limit-reached-icon"><i class="fa-solid fa-circle-pause"></i></div>
+            <div>
+              <h4>Capture Limit Reached — Capture Paused</h4>
+              <p>Buffer limit reached. Actual network traffic continues normally without interruption.</p>
+            </div>
+          </div>
+          <div class="limit-reached-actions">
+            <button class="btn btn-xs btn-primary" id="btnLimitResume"><i class="fa-solid fa-play"></i> Resume Capture</button>
+            <button class="btn btn-xs btn-outline" id="btnLimitSave"><i class="fa-solid fa-floppy-disk"></i> Save Capture</button>
+            <button class="btn btn-xs btn-outline-danger" id="btnLimitRestart"><i class="fa-solid fa-rotate-right"></i> Clear & Restart</button>
+            <button class="btn btn-xs btn-secondary" id="btnLimitStop"><i class="fa-solid fa-stop"></i> Stop Capture</button>
+          </div>
+        </div>
+
+        <!-- Interface List with Live Animated Sparklines (Screenshot Replica) -->
+        <div class="ws-interface-table-wrapper" id="wsInterfaceListWrapper">
+          <table class="ws-interface-table" id="wsInterfaceTable">
+            <tbody id="wsInterfaceTableBody">
+              <!-- Rendered dynamically with live sparklines for Wi-Fi, VMware, Loopback, Ethernet -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sniffer Filters & Stats Bar -->
+      <div class="sniffer-stats-row">
+        <div class="stat-pill"><i class="fa-solid fa-chart-line text-cyan"></i> Bandwidth: <strong id="sniffRate">1.4 MB/s</strong></div>
+        <div class="stat-pill"><i class="fa-solid fa-cubes text-blue"></i> Packets: <strong id="sniffCount">0</strong></div>
+        <div class="stat-pill"><i class="fa-solid fa-shield-virus text-crimson"></i> Leaks/Alerts: <strong id="sniffAlerts">0</strong></div>
+        
+        <div class="sniffer-filter-box">
+          <i class="fa-solid fa-filter"></i>
+          <input type="text" id="snifferFilterInput" placeholder="Filter packets: DNS, HTTP, TLS, TCP, or IP...">
+          <button class="btn-filter-tag active" data-proto="all">ALL</button>
+          <button class="btn-filter-tag" data-proto="TLS">HTTPS/TLS</button>
+          <button class="btn-filter-tag" data-proto="DNS">DNS</button>
+          <button class="btn-filter-tag" data-proto="HTTP">HTTP</button>
+        </div>
+      </div>
+
+      <!-- Wireshark-Style Simplified Table -->
+      <div class="panel-card sniffer-table-card">
+        <div class="table-responsive">
+          <table class="sniffer-table">
+            <thead>
+              <tr>
+                <th style="width: 60px;">No.</th>
+                <th style="width: 90px;">Time</th>
+                <th style="width: 90px;">Protocol</th>
+                <th style="width: 170px;">Source</th>
+                <th style="width: 30px;"><i class="fa-solid fa-arrow-right"></i></th>
+                <th style="width: 170px;">Destination</th>
+                <th>Packet Summary (Plain English)</th>
+                <th style="width: 90px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="snifferTableBody">
+              <!-- Live packets inserted dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- MODULE: 4. NETWORK TOPOLOGY DESIGN & FLOW RADAR          -->
+    <!-- ======================================================== -->
+    <section class="tab-module" id="tab-topology">
+      <div class="section-top-bar">
+        <div>
+          <h2><i class="fa-solid fa-circle-nodes text-purple"></i> Interactive Network Topology & Flow Radar</h2>
+          <p class="section-subtext">Visual canvas topology map of all connected devices, router gateway, internal servers, and internet cloud nodes with real-time glowing particle flows.</p>
+        </div>
+        <div class="sniffer-controls">
+          <button class="btn btn-outline" id="btnResetTopology"><i class="fa-solid fa-arrows-to-eye"></i> Reset View</button>
+          <button class="btn btn-outline" id="btnToggleParticles"><i class="fa-solid fa-atom"></i> Particles: ON</button>
+        </div>
+      </div>
+
+      <div class="panel-card topology-canvas-card">
+        <div class="topology-canvas-container">
+          <canvas id="topologyCanvas" height="420"></canvas>
+          
+          <!-- Topology Node Details Overlay Card -->
+          <div class="topology-node-card hidden" id="topologyNodeCard">
+            <div class="node-card-header">
+              <div class="node-title-group">
+                <i class="fa-solid fa-desktop" id="topNodeIcon"></i>
+                <div>
+                  <h4 id="topNodeTitle">Device Name</h4>
+                  <span class="node-ip" id="topNodeIp">192.168.1.105</span>
+                </div>
+              </div>
+              <button class="close-card-btn" id="btnCloseTopCard"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="node-card-body">
+              <div class="node-stat-row"><span>MAC Address:</span> <strong id="topNodeMac">00:1A:2B:3C:4D:5E</strong></div>
+              <div class="node-stat-row"><span>Device Type:</span> <strong id="topNodeType">Workstation</strong></div>
+              <div class="node-stat-row"><span>Active Sockets:</span> <strong id="topNodeSockets">18 connections</strong></div>
+              <div class="node-stat-row"><span>Status:</span> <strong class="text-emerald" id="topNodeStatus">Clean</strong></div>
+            </div>
+            <div class="node-card-footer">
+              <button class="btn btn-xs btn-primary w-100" id="btnFilterTopNode">Isolate Live Traffic</button>
+            </div>
+          </div>
+
+          <!-- Legend Overlay -->
+          <div class="topology-legend-bar">
+            <div class="leg-item"><span class="leg-dot dot-gw"></span> Gateway Router</div>
+            <div class="leg-item"><span class="leg-dot dot-client"></span> Local Clients</div>
+            <div class="leg-item"><span class="leg-dot dot-cloud"></span> Cloud / External</div>
+            <div class="leg-item"><span class="leg-dot dot-threat"></span> Rogue / Suspicious</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- MODULE 3: VISUAL TRACEROUTE & PING HUB                   -->
+    <!-- ======================================================== -->
+    <section class="tab-module" id="tab-traceroute">
+      <div class="section-top-bar">
+        <div>
+          <h2><i class="fa-solid fa-route text-purple"></i> Visual Traceroute, Latency & Security Health Hub</h2>
+          <p class="section-subtext">See the exact path your packets take through routers, measure real-time latency jitter, and review security health posture.</p>
+        </div>
+        <button class="btn btn-primary" id="btnRunTrace"><i class="fa-solid fa-play"></i> Trace Path Now</button>
+      </div>
+
+      <!-- Visual Hop Journey Map -->
+      <div class="panel-card mb-4">
+        <h3 class="card-subtitle"><i class="fa-solid fa-map-location-dot"></i> Packet Journey (Hop-by-Hop Route)</h3>
+        <div class="traceroute-visual-container" id="tracerouteVisualBox">
+          <!-- Hops dynamically generated -->
+        </div>
+      </div>
+
+      <!-- Ping Stability & DNS Speed Race Grid -->
+      <div class="content-split-layout">
+        <!-- Live Ping Stability Sparkline -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <h2><i class="fa-solid fa-stopwatch"></i> Real-Time Latency & Jitter</h2>
+            <span class="badge badge-success" id="pingStabilityBadge">Stable (14 ms)</span>
+          </div>
+          <div class="ping-canvas-container">
+            <canvas id="pingSparkCanvas" height="120"></canvas>
+          </div>
+          <div class="ping-stats-grid">
+            <div class="ping-box"><span>Min:</span> <strong id="pingMin">11 ms</strong></div>
+            <div class="ping-box"><span>Avg:</span> <strong id="pingAvg">15 ms</strong></div>
+            <div class="ping-box"><span>Max:</span> <strong id="pingMax">28 ms</strong></div>
+            <div class="ping-box"><span>Jitter:</span> <strong id="pingJitter">1.2 ms</strong></div>
+          </div>
+        </div>
+
+        <!-- DNS Resolver Benchmark Race -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <h2><i class="fa-solid fa-bolt text-amber"></i> DNS Speed Race (Find Fastest Resolver)</h2>
+            <button class="btn btn-xs btn-outline" id="btnRetestDns"><i class="fa-solid fa-arrows-rotate"></i> Retest</button>
+          </div>
+          <p class="panel-hint mb-3">Tests which DNS server makes your internet feel fastest:</p>
+          <div class="dns-race-list" id="dnsRaceList"></div>
+        </div>
+      </div>
+
+      <!-- 8. SECURITY HEALTH GAUGE & AUDIT SUMMARY -->
+      <div class="content-split-layout mt-4">
+        <div class="panel-card text-center health-gauge-panel">
+          <div class="panel-header" style="justify-content: center;">
+            <h2><i class="fa-solid fa-heart-pulse text-emerald"></i> Overall Network Security Health Index</h2>
+          </div>
+          <div class="health-gauge-box">
+            <div class="health-gauge-ring" id="healthGaugeRing">
+              <span class="gauge-val" id="healthScoreGaugeNum">96%</span>
+              <span class="gauge-lbl text-emerald" id="healthScoreGaugeGrade">Optimal</span>
+            </div>
+          </div>
+          <div class="health-points-list">
+            <div class="health-point good"><i class="fa-solid fa-check"></i> Zero Packet Loss Detected (0.00%)</div>
+            <div class="health-point good"><i class="fa-solid fa-check"></i> Local Gateway Latency Stable (1.4 ms)</div>
+            <div class="health-point warn"><i class="fa-solid fa-triangle-exclamation"></i> 1 Subnet Endpoint Uses Cleartext Port 80</div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-header">
+            <h2><i class="fa-solid fa-shield-check text-cyan"></i> Path MTU & Network Resilience Check</h2>
+            <span class="badge badge-success">Bufferbloat: A+</span>
+          </div>
+          <div class="resilience-checks-list">
+            <div class="resilience-item"><i class="fa-solid fa-circle-check text-emerald"></i> <div><strong>Interface MTU: 1500 Bytes</strong><span>No local fragment drops detected</span></div></div>
+            <div class="resilience-item"><i class="fa-solid fa-circle-check text-emerald"></i> <div><strong>MSS Clamping: 1452 Bytes</strong><span>Optimal TCP maximum segment size</span></div></div>
+            <div class="resilience-item"><i class="fa-solid fa-circle-check text-emerald"></i> <div><strong>ICMP Path Black Hole Test: PASS</strong><span>Fragmentation-needed replies received cleanly</span></div></div>
+            <div class="resilience-item"><i class="fa-solid fa-circle-check text-emerald"></i> <div><strong>DNS Cryptographic Integrity: Validated</strong><span>1.1.1.1 and 8.8.8.8 responding reliably</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- MODULE 4: WHO'S ON MY WI-FI? (LAN DEVICE DISCOVERY)      -->
+    <!-- ======================================================== -->
+    <section class="tab-module" id="tab-devices">
+      <div class="section-top-bar">
+        <div>
+          <h2><i class="fa-solid fa-wifi text-emerald"></i> Who's On My Wi-Fi? (Local Network Inventory)</h2>
+          <p class="section-subtext">Scans your local subnet (192.168.1.0/24) to find every connected smartphone, PC, Smart TV, router, and unexpected guest device.</p>
+        </div>
+        <button class="btn btn-primary" id="btnScanLan"><i class="fa-solid fa-magnifying-glass"></i> Scan Wi-Fi Network</button>
+      </div>
+
+      <div class="lan-summary-bar">
+        <div class="lan-stat-card">
+          <span class="val" id="lanTotalCount">6</span>
+          <span class="lbl">Devices Found</span>
+        </div>
+        <div class="lan-stat-card">
+          <span class="val text-emerald" id="lanKnownCount">5</span>
+          <span class="lbl">Trusted Devices</span>
+        </div>
+        <div class="lan-stat-card">
+          <span class="val text-crimson" id="lanUnknownCount">1</span>
+          <span class="lbl">Unknown / Suspicious</span>
+        </div>
+      </div>
+
+      <div class="devices-grid" id="lanDevicesGrid">
+        <!-- Devices dynamically populated -->
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- MODULE 5: AI NETWORK DOCTOR                              -->
+    <!-- ======================================================== -->
+    <section class="tab-module" id="tab-ai">
+      <div class="section-top-bar">
+        <div>
+          <h2><i class="fa-solid fa-wand-magic-sparkles text-amber"></i> AI Network Doctor & Troubleshooter</h2>
+          <p class="section-subtext">Ask any question about networking, slow internet, Wi-Fi security, or Nmap/Wireshark in plain English or Hinglish.</p>
+        </div>
+        <div class="lang-switch-pills">
+          <button class="btn btn-xs btn-outline active" id="btnAiEn">English</button>
+          <button class="btn btn-xs btn-outline" id="btnAiHi">Hinglish / Hindi</button>
+        </div>
+      </div>
+
+      <div class="ai-chat-card">
+        <div class="ai-chat-history" id="aiChatHistory">
+          <div class="chat-row ai-msg">
+            <div class="chat-avatar"><i class="fa-solid fa-robot"></i></div>
+            <div class="chat-bubble">
+              <h4>PortPulse AI Assistant</h4>
+              <p>Hello! Main aapka personal <strong>Network Doctor</strong> hoon. Chahe aap beginner ho ya expert, main kisi bhi network issue, port ya vulnerability ko simple bhasha me explain kar sakta hoon.</p>
+              <div class="ai-quick-chips">
+                <button class="quick-chip" data-q="Why is my Wi-Fi ping so high in games?">🎮 Why is my ping high in games?</button>
+                <button class="quick-chip" data-q="Is port 80 or 445 dangerous on my router?">🔓 Is port 445 dangerous on my router?</button>
+                <button class="quick-chip" data-q="How can I prevent strangers from stealing my Wi-Fi?">🛡️ How to stop strangers from using my Wi-Fi?</button>
+                <button class="quick-chip" data-q="What is the difference between TCP and UDP?">⚡ Difference between TCP and UDP?</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-input-row">
+          <input type="text" id="aiDoctorInput" placeholder="Ask anything about network ports, Wi-Fi speed, security risks..." autocomplete="off">
+          <button class="btn btn-primary" id="btnSendAiDoctor"><i class="fa-solid fa-paper-plane"></i> Ask Doctor</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- POPUP MODAL: Port Educational Explainer Modal -->
+  <div class="modal-overlay hidden" id="portDetailModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-port-badge" id="modalPortBadge">22</div>
+          <div>
+            <h3 id="modalPortTitle">Port 22: SSH (Secure Shell)</h3>
+            <span class="text-xs text-muted" id="modalPortState">Status: Open • Protocol: TCP</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" id="btnClosePortModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="explainer-section">
+          <h4><i class="fa-solid fa-lightbulb"></i> What is this Port used for?</h4>
+          <p id="modalPortDescription">Loading description...</p>
+        </div>
+
+        <div class="explainer-section">
+          <h4><i class="fa-solid fa-shield-halved"></i> Security & Risk Assessment</h4>
+          <div class="risk-callout" id="modalRiskCallout">
+            <span id="modalRiskText">Loading risk analysis...</span>
+          </div>
+        </div>
+
+        <div class="explainer-section">
+          <h4><i class="fa-solid fa-wrench"></i> Recommended Best Practice / Fix</h4>
+          <div class="fix-box" id="modalFixBox">
+            <span id="modalFixText">Loading recommended actions...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnModalUnderstood">Understood</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP MODAL: Wireshark Packet Deep Inspector -->
+  <div class="modal-overlay hidden" id="packetInspectModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-microscope text-cyan"></i>
+          <div>
+            <h3 id="inspectPktTitle">Packet #14 — TLS 1.3 Handshake</h3>
+            <span class="text-xs text-muted" id="inspectPktMeta">Captured: 21:55:02 • 1420 Bytes</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" id="btnClosePacketModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="explainer-section">
+          <h4><i class="fa-solid fa-info-circle text-cyan"></i> Plain-English Packet Explanation</h4>
+          <div class="risk-callout" id="inspectPktExplanation">
+            This is an encrypted TLS 1.3 packet transferring secure web data.
+          </div>
+        </div>
+
+        <div class="explainer-section">
+          <h4><i class="fa-solid fa-layer-group"></i> Decoded Header Details</h4>
+          <div class="packet-headers-tree" id="inspectPktHeaders">
+            <!-- Headers populated dynamically -->
+          </div>
+        </div>
+
+        <div class="explainer-section">
+          <h4><i class="fa-solid fa-binary"></i> Raw Hexadecimal Payload Preview</h4>
+          <pre class="raw-hex-box" id="inspectPktHex">00 50 56 c0 00 08 3c 06 30 4f a1 22 08 00 45 00 ...</pre>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnClosePacketModalFooter">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP MODAL: Audit Report Preview & Download -->
+  <div class="modal-overlay hidden" id="reportExportModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-file-shield text-emerald"></i>
+          <div>
+            <h3>Audit Report Summary</h3>
+            <span class="text-xs text-muted">Ready to share, save or print</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" id="btnCloseReportModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="report-paper" id="reportPaper">
+          <div class="rep-head">
+            <h2>PortPulse Network Security Assessment</h2>
+            <span class="rep-date" id="repCurrentDate">September 16, 2026</span>
+          </div>
+
+          <div class="rep-section">
+            <h4>Host Information</h4>
+            <p><strong>Target:</strong> <span id="repTarget">scanme.nmap.org</span> | <strong>Status:</strong> Online | <strong>Latency:</strong> 14ms</p>
+            <p><strong>Operating System:</strong> <span id="repOs">Linux 5.x</span></p>
+          </div>
+
+          <div class="rep-section">
+            <h4>Security Index & Findings</h4>
+            <div class="rep-score-box">
+              <span class="score" id="repScoreVal">88 / 100</span>
+              <p id="repSummaryText">Host exhibits solid security baseline with minimal exposed services.</p>
+            </div>
+          </div>
+
+          <div class="rep-section">
+            <h4>Port & Service Inventory</h4>
+            <table class="rep-table" id="repTable">
+              <thead>
+                <tr>
+                  <th>Port</th>
+                  <th>Service</th>
+                  <th>Version</th>
+                  <th>Status</th>
+                  <th>Risk Rating</th>
+                </tr>
+              </thead>
+              <tbody id="repTableBody">
+                <!-- Dynamically filled -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; gap: 8px; justify-content: flex-end;">
+        <button class="btn btn-secondary" id="btnCloseReportModalFooter">Close</button>
+        <button class="btn btn-outline" id="btnDownloadTxtReport"><i class="fa-solid fa-file-lines"></i> 1. Export TXT</button>
+        <button class="btn btn-outline" id="btnDownloadJsonReport"><i class="fa-solid fa-code"></i> 2. Export JSON</button>
+        <button class="btn btn-primary" id="btnPrintReport"><i class="fa-solid fa-file-pdf"></i> 3. Print / Save as PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 1. DEEP DEVICE & HOST DETAILS MODAL                      -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay hidden" id="deviceDetailsModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-microchip text-cyan" id="devModalIcon" style="font-size: 24px;"></i>
+          <div>
+            <h3 id="devModalTitle">TP-Link Archer AX55</h3>
+            <span class="text-xs text-muted" id="devModalSubtitle">IP: 192.168.1.1 • MAC: D8:07:B6:33:AA:01</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" id="btnCloseDeviceModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body" id="devModalBody">
+        <!-- Dynamically rendered detailed device specs -->
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <span class="text-xs text-muted" id="devModalFooterNote"><i class="fa-solid fa-shield-halved"></i> Monitored by PortPulse Studio</span>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary" id="btnCloseDeviceModalFooter">Close</button>
+          <button class="btn btn-outline" id="devModalBtnCapture"><i class="fa-solid fa-filter"></i> Capture Packets</button>
+          <button class="btn btn-primary" id="devModalBtnScan"><i class="fa-solid fa-terminal"></i> Scan in CLI</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 1: CONTINUOUS ICMP PING & SUBNET SWEEPER          -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay hidden" id="modalPingTool">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-satellite-dish text-emerald" style="font-size: 24px;"></i>
+          <div>
+            <h3>Continuous ICMP Ping Utility & Subnet Sweeper</h3>
+            <span class="text-xs text-muted">Test real-time packet latency, MTU limits, jitter, and discover active subnet IPs</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" id="btnClosePingModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="ping-controls-bar">
+          <div class="ping-input-col">
+            <label><i class="fa-solid fa-crosshairs"></i> Target Host or IP:</label>
+            <input type="text" id="pingModalHostInput" value="8.8.8.8" placeholder="e.g. 8.8.8.8, 1.1.1.1, google.com">
+          </div>
+          <div class="ping-input-col" style="max-width: 170px;">
+            <label><i class="fa-solid fa-cube"></i> Packet Size:</label>
+            <select id="pingModalSizeSelect" class="ws-select-small">
+              <option value="32" selected>32 Bytes (Standard)</option>
+              <option value="64">64 Bytes (Linux)</option>
+              <option value="512">512 Bytes (Buffer)</option>
+              <option value="1472">1472 Bytes (Max MTU)</option>
+            </select>
+          </div>
+          <div class="ping-actions-col">
+            <button class="btn btn-primary" id="btnStartPingAction">
+              <i class="fa-solid fa-play"></i> <span id="txtPingAction">Start Ping</span>
+            </button>
+            <button class="btn btn-outline" id="btnSubnetSweepAction">
+              <i class="fa-solid fa-network-wired"></i> Sweep Subnet (/24)
+            </button>
+          </div>
+        </div>
+
+        <div class="ping-stats-strip mt-3">
+          <div class="stat-item"><span>Transmitted:</span> <strong id="pingStatSent">0</strong></div>
+          <div class="stat-item"><span>Received:</span> <strong class="text-emerald" id="pingStatRecv">0</strong></div>
+          <div class="stat-item"><span>Packet Loss:</span> <strong id="pingStatLoss">0.0%</strong></div>
+          <div class="stat-item"><span>Min RTT:</span> <strong id="pingStatMin">0 ms</strong></div>
+          <div class="stat-item"><span>Avg RTT:</span> <strong id="pingStatAvg">0 ms</strong></div>
+          <div class="stat-item"><span>Max RTT:</span> <strong id="pingStatMax">0 ms</strong></div>
+          <div class="stat-item"><span>Jitter:</span> <strong id="pingStatJitter">0.0 ms</strong></div>
+        </div>
+
+        <!-- Terminal Output Screen -->
+        <div class="ping-terminal-container mt-3">
+          <div class="ping-terminal-header">
+            <span><i class="fa-solid fa-terminal"></i> Ping ICMP Stream Log</span>
+            <button class="btn btn-xs btn-ghost" id="btnClearPingTerminal"><i class="fa-solid fa-eraser"></i> Clear</button>
+          </div>
+          <div class="ping-terminal-output" id="pingTerminalOutput">
+            <div class="term-line term-muted">PING 8.8.8.8 (8.8.8.8): 32 data bytes. Ready.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <span class="text-xs text-muted"><i class="fa-solid fa-shield-check text-emerald"></i> ICMP echo engine active</span>
+        <button class="btn btn-secondary" id="btnClosePingModalFooter">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 2: FOLLOW TCP STREAM (WIRESHARK DIALOGUE)          -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay hidden" id="modalFollowTcpStream">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-comments text-cyan" style="font-size: 24px;"></i>
+          <div>
+            <h3>Follow TCP Stream</h3>
+            <span class="text-xs text-muted">Reconstructed Client & Server full duplex conversation</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" id="btnCloseFollowModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="follow-stream-toolbar">
+          <div class="stream-select-group">
+            <label><i class="fa-solid fa-arrow-right-arrow-left"></i> Active Stream:</label>
+            <select id="followStreamSelect" class="ws-select-small">
+              <option value="stream0">Stream #0: 192.168.1.105:54312 ⇄ 104.21.44.201:443 (TLS 1.3 Web)</option>
+              <option value="stream1">Stream #1: 192.168.1.105:49822 ⇄ 192.168.1.50:80 (HTTP Cleartext Auth)</option>
+              <option value="stream2">Stream #2: 192.168.1.105:51234 ⇄ 1.1.1.1:53 (DNS Query & Response)</option>
+            </select>
+          </div>
+          <div class="stream-format-pills">
+            <button class="btn btn-xs btn-outline active" data-fmt="ascii">ASCII</button>
+            <button class="btn btn-xs btn-outline" data-fmt="hex">Hex Dump</button>
+            <button class="btn btn-xs btn-outline" data-fmt="raw">Raw</button>
+          </div>
+        </div>
+
+        <div class="follow-legend-bar">
+          <span class="leg-client"><span class="dot-red"></span> Client Request (192.168.1.105)</span>
+          <span class="leg-server"><span class="dot-blue"></span> Server Response</span>
+        </div>
+
+        <div class="follow-stream-content" id="followStreamContent">
+          <!-- Dialogue rendered with red (client) and blue (server) text -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <span class="text-xs text-muted" id="followStreamBytes">Total Reconstructed: 1,842 Bytes (12 Packets)</span>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-outline" id="btnDownloadStreamText"><i class="fa-solid fa-download"></i> Save Stream Text</button>
+          <button class="btn btn-secondary" id="btnCloseFollowModalFooter">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 3: PROTOCOL HIERARCHY STATISTICS                   -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay hidden" id="modalProtocolHierarchy">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-sitemap text-purple" style="font-size: 24px;"></i>
+          <div>
+            <h3>Protocol Hierarchy Statistics</h3>
+            <span class="text-xs text-muted">Complete breakdown of network protocols captured in session</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" id="btnCloseHierarchyModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <table class="hierarchy-table">
+          <thead>
+            <tr>
+              <th>Protocol Tree</th>
+              <th style="width: 140px;">Distribution %</th>
+              <th style="width: 90px;">Packets</th>
+              <th style="width: 90px;">Bytes</th>
+              <th style="width: 100px;">Bandwidth</th>
+            </tr>
+          </thead>
+          <tbody id="hierarchyTableBody">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <span class="text-xs text-muted" id="hierarchyFooterSummary">Total frames captured: 1,280 | Total bytes: 1.42 MB</span>
+        <button class="btn btn-secondary" id="btnCloseHierarchyModalFooter">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 4: RAW PACKET CRAFTER ("PACKET FORGE")             -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay hidden" id="modalPacketForge">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-wand-magic-sparkles text-cyan" style="font-size: 24px;"></i>
+          <div>
+            <h3>Raw Packet Crafter ("Packet Forge")</h3>
+            <span class="text-xs text-muted">Construct custom TCP, UDP, or ICMP probe frames to test firewall rules</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" id="btnCloseForgeModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="forge-grid">
+          <div class="forge-form">
+            <div class="form-row-group">
+              <div class="form-col">
+                <label>Protocol:</label>
+                <select id="forgeProtoSelect" class="ws-select-small">
+                  <option value="TCP" selected>TCP (Transmission Control Protocol)</option>
+                  <option value="UDP">UDP (User Datagram Protocol)</option>
+                  <option value="ICMP">ICMP (Ping Probe)</option>
+                </select>
+              </div>
+              <div class="form-col">
+                <label>IP Time-to-Live (TTL):</label>
+                <input type="number" id="forgeTtlInput" value="64" min="1" max="255">
+              </div>
+            </div>
+
+            <div class="form-row-group">
+              <div class="form-col">
+                <label>Source Address:Port</label>
+                <input type="text" id="forgeSrcInput" value="192.168.1.105:54120">
+              </div>
+              <div class="form-col">
+                <label>Destination Address:Port</label>
+                <input type="text" id="forgeDstInput" value="45.33.32.156:80">
+              </div>
+            </div>
+
+            <div class="form-flags-group" id="forgeFlagsGroup">
+              <label>TCP Control Flags:</label>
+              <div class="forge-flags-pills">
+                <label class="flag-check"><input type="checkbox" id="flagSYN" checked> <span>SYN</span></label>
+                <label class="flag-check"><input type="checkbox" id="flagACK"> <span>ACK</span></label>
+                <label class="flag-check"><input type="checkbox" id="flagFIN"> <span>FIN</span></label>
+                <label class="flag-check"><input type="checkbox" id="flagRST"> <span>RST</span></label>
+                <label class="flag-check"><input type="checkbox" id="flagPSH"> <span>PSH</span></label>
+                <label class="flag-check"><input type="checkbox" id="flagURG"> <span>URG</span></label>
+              </div>
+            </div>
+
+            <div class="form-col">
+              <label>Custom Payload Data (Hex or ASCII):</label>
+              <textarea id="forgePayloadInput" rows="3" placeholder="GET / HTTP/1.1\r\nHost: scanme.nmap.org\r\n\r\n">GET /test-probe HTTP/1.1\r\nHost: target.lan\r\n\r\n</textarea>
+            </div>
+
+            <button class="btn btn-primary mt-2" id="btnTransmitForgedPacket">
+              <i class="fa-solid fa-paper-plane"></i> Forge & Transmit Packet Probe
+            </button>
+          </div>
+
+          <div class="forge-console">
+            <div class="console-head">
+              <span><i class="fa-solid fa-terminal"></i> Probe Dispatch & Network Response</span>
+              <button class="btn btn-xs btn-ghost" id="btnClearForgeConsole"><i class="fa-solid fa-eraser"></i> Clear</button>
+            </div>
+            <div class="console-body" id="forgeConsoleBody">
+              <div class="term-line term-muted">Packet Forge Ready. Configure header parameters and click 'Forge & Transmit'.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <span class="text-xs text-muted"><i class="fa-solid fa-shield-halved text-cyan"></i> Safe Sandbox Transmission Simulation</span>
+        <button class="btn btn-secondary" id="btnCloseForgeModalFooter">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 5: WHOIS & IP THREAT INTELLIGENCE RADAR            -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay hidden" id="modalWhoisIntel">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-earth-americas text-purple" style="font-size: 24px;"></i>
+          <div>
+            <h3>WHOIS & IP Threat Intelligence Radar</h3>
+            <span class="text-xs text-muted">Query Autonomous Systems (ASN), IP Geolocation, and Abuse threat ratings</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" id="btnCloseWhoisModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="whois-search-row">
+          <div class="input-field-group">
+            <i class="fa-solid fa-magnifying-glass input-icon"></i>
+            <input type="text" id="whoisTargetInput" value="scanme.nmap.org" placeholder="Enter IP address or domain (e.g. 1.1.1.1, google.com, 45.33.32.156)...">
+          </div>
+          <button class="btn btn-primary" id="btnRunWhoisLookup">
+            <i class="fa-solid fa-satellite"></i> Lookup Intel
+          </button>
+        </div>
+
+        <div class="whois-results-grid mt-3" id="whoisResultsContainer">
+          <!-- Populated dynamically with ASN, Country, Abuse score, and Reverse DNS -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <span class="text-xs text-muted"><i class="fa-solid fa-database text-purple"></i> Threat Intel Feed: PortPulse CyberOps</span>
+        <button class="btn btn-secondary" id="btnCloseWhoisModalFooter">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: EXTERNAL PUBLIC SCAN PERMISSION NOTICE            -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay hidden" id="modalExternalScanNotice">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-shield-halved text-amber" style="font-size: 24px;"></i>
+          <div>
+            <h3>External Public Scan Authorization</h3>
+            <span class="text-xs text-muted">Legal & Compliance Reminder for Internet Target</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" id="btnCloseExtScanModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="risk-callout" style="border-left-color: var(--accent-amber); margin-bottom: 14px;">
+          <strong><i class="fa-solid fa-triangle-exclamation text-amber"></i> Public Host Warning:</strong>
+          <p style="margin-top: 6px; font-size: 13px;">You are about to launch a Zenmap-equivalent deep scan against public external host: <strong id="extTargetDisplay" class="text-cyan">scanme.nmap.org</strong>.</p>
+          <p style="margin-top: 6px; font-size: 12.5px;">Scanning third-party hosts over the Internet requires authorization. Please verify you own or have explicit permission to audit this target before starting.</p>
+        </div>
+        <p class="text-xs text-muted">
+          <i class="fa-solid fa-circle-info text-cyan"></i> The deep scan will perform SYN stealth port discovery, service version extraction, OS fingerprint guessing, and CVE matching.
+        </p>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn btn-secondary" id="btnCancelExtScan"><i class="fa-solid fa-xmark"></i> Cancel</button>
+        <button class="btn btn-primary" id="btnProceedExtScan"><i class="fa-solid fa-bolt"></i> Proceed with Deep Scan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: MALICIOUS PACKET DETECTED — BLOCK TRAFFIC?        -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay hidden" id="modalMaliciousPacketDetected">
+    <div class="modal-dialog modal-alert-threat">
+      <div class="modal-header modal-header-danger">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-shield-virus text-crimson" style="font-size: 26px;"></i>
+          <div>
+            <h3 style="color: #ef4444; font-weight: 800;">🛑 Malicious Packet Detected — Block This Traffic?</h3>
+            <span class="text-xs text-muted">Active Packet Guard & Intrusion Prevention Intercept</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" id="btnCloseMalModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="threat-alert-hero">
+          <div class="threat-flow-box">
+            <div class="flow-endpoint">
+              <span class="endpoint-label">Source Host</span>
+              <strong class="endpoint-ip text-crimson" id="malPktSrc">192.168.1.199</strong>
+            </div>
+            <div class="flow-arrow">
+              <i class="fa-solid fa-angles-right text-crimson"></i>
+              <span id="malPktProto" class="proto-badge proto-tcp">TCP</span>
+            </div>
+            <div class="flow-endpoint">
+              <span class="endpoint-label">Destination</span>
+              <strong class="endpoint-ip" id="malPktDst">192.168.1.105:445</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="explainer-section mt-3">
+          <h4><i class="fa-solid fa-triangle-exclamation text-crimson"></i> Threat Signature Flagged:</h4>
+          <div class="risk-callout threat-reason-box" id="malPktReason">
+            Suspected malicious command-and-control beacon / exploit payload sequence.
+          </div>
+        </div>
+
+        <div class="threat-tech-details hidden" id="malPktTechDetails">
+          <div class="explainer-section mt-2">
+            <h4><i class="fa-solid fa-code text-cyan"></i> Packet Headers & Payload Hex:</h4>
+            <div class="packet-headers-tree" id="malPktHeaders"></div>
+            <div class="raw-hex-box mt-2" id="malPktHex"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+        <button class="btn btn-outline" id="btnToggleMalDetails">
+          <i class="fa-solid fa-circle-info"></i> <span id="lblToggleMalDetails">View Details</span>
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary" id="btnAllowPacketOnce">
+            <i class="fa-solid fa-shield-halved"></i> Allow Once
+          </button>
+          <button class="btn btn-danger" id="btnConfirmBlockPacket">
+            <i class="fa-solid fa-ban"></i> Block Packet (Confirm)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: BLOCKED PACKETS LOG & QUARANTINED SOURCES         -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay hidden" id="modalBlockedPackets">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-ban text-crimson" style="font-size: 24px;"></i>
+          <div>
+            <h3>Blocked Packets & Quarantined Sources Log</h3>
+            <span class="text-xs text-muted">Active intercept registry with unblock controls & audit export</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" id="btnCloseBlockedModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="blocked-log-toolbar">
+          <div class="blocked-stat-badge">
+            Blocked Entries: <strong id="blockedCountDisplay" class="text-crimson">0</strong> packets
+          </div>
+          <div class="blocked-actions-row">
+            <button class="btn btn-xs btn-outline" id="btnExportBlockedJson"><i class="fa-solid fa-file-code"></i> Export JSON</button>
+            <button class="btn btn-xs btn-outline" id="btnExportBlockedTxt"><i class="fa-solid fa-file-lines"></i> Export TXT</button>
+            <button class="btn btn-xs btn-outline-danger" id="btnClearBlockedList"><i class="fa-solid fa-trash-can"></i> Clear All</button>
+          </div>
+        </div>
+
+        <div class="table-responsive mt-3" style="max-height: 380px; overflow-y: auto;">
+          <table class="sniffer-table">
+            <thead>
+              <tr>
+                <th style="width: 70px;">Time</th>
+                <th style="width: 150px;">Source IP</th>
+                <th style="width: 150px;">Destination</th>
+                <th style="width: 70px;">Proto</th>
+                <th>Flagged Threat Reason</th>
+                <th style="width: 80px;">Action</th>
+                <th style="width: 90px;">Manage</th>
+              </tr>
+            </thead>
+            <tbody id="blockedTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <span class="text-xs text-muted"><i class="fa-solid fa-shield-check text-emerald"></i> App layer traffic containment active</span>
+        <button class="btn btn-secondary" id="btnCloseBlockedModalFooter">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Script -->
+  <script src="app.js"></script>
+</body>
+</html>
